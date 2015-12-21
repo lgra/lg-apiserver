@@ -1,0 +1,18 @@
+{
+  "author": "LG3i",
+  "name": "lg-apiserver",
+  "description": "Small API server using node.js",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node index",
+    "dbg": "node debug index.js"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
