@@ -2,6 +2,7 @@ var http = require('http')
 var url = require('url');
 var querystring = require('querystring')
 var router = require('./router.js')
+var Promise = require('promise')
 
 module.exports = {
       ws: null,
@@ -74,7 +75,18 @@ module.exports = {
                                                 url: askedUrl
                                           }
                                           var content = match.handler(match.param, context)
-                                          if (content !== true) {
+                                          if (content instanceof Promise) {
+                                            content.then(function (data) {
+                                              headers['Content-Type', 'application/json; charset=utf-8']
+                                              res.writeHead(200, headers)
+                                              res.end(JSON.stringify(data))
+                                            }, function(e) {
+                                              headers['Content-Type', 'application/json; charset=utf-8']
+                                              res.writeHead(500, headers)
+                                              res.end(JSON.stringify({ "error": e.toString() }))
+                                            })
+                                          }
+                                          else if (content !== true) {
                                                 headers['Content-Type', 'application/json; charset=utf-8']
                                                 res.writeHead(200, headers)
                                                 res.end(JSON.stringify(content))

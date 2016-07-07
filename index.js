@@ -1,3 +1,5 @@
+var Promise = require('promise')
+
 var api = require('./src/apirunner.js')
 
 api.add('get', '/', true)
@@ -9,8 +11,10 @@ api.add('put', '/clients/:id', true)
 api.add('del', '/clients/:id', true)
 api.add('get', '/clients/:id/users', true)
 api.add('get', '/clients/:id/users/:iduser', true)
+api.add('get', '/promises', demoPromiseHandler)
+api.add('get', '/promises/:id', demoPromiseHandler)
 
-api.run(1337, '127.0.0.1')
+api.run(1339, '127.0.0.1')
 
 function demoHandler (_param, _context) {
 	return _param
@@ -23,4 +27,16 @@ function demoCustomHandler (_param, _context) {
 	_context.res.writeHead(200, _context.headers)
 	_context.res.end(content)
 	return true
+}
+
+function demoPromiseHandler (_param, _context) {
+  var promise = new Promise(function (resolve, reject) {
+    if (_param && _param.id) {
+      reject(new Error("not yet implemented"))
+    }
+    else {
+      resolve("that's it")
+    }
+  })
+  return promise
 }

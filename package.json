@@ -8,6 +8,7 @@
     "dbg": "node debug index.js"
   },
   "dependencies": {
+    "promise": "*"
   },
   "devDependencies": {
   },
