@@ -26,7 +26,7 @@ module.exports = {
                   headers = {
                         "Access-Control-Allow-Origin": req.headers.origin,
                         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
-                        "Access-Control-Allow-Headers": "authorization, accept, Access-Control-Allow-Origin"
+                        "Access-Control-Allow-Headers": "authorization, accept, Content-Type, Access-Control-Allow-Origin"
                   }
             }
             if (req.method == "OPTIONS") {
