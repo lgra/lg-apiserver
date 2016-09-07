@@ -2,7 +2,6 @@ var http = require('http')
 var url = require('url');
 var querystring = require('querystring')
 var router = require('./router.js')
-var Promise = require('promise')
 
 module.exports = {
       ws: null,
