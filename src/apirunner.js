@@ -78,35 +78,35 @@ module.exports = {
                                           var content = match.handler(match.param, context)
                                           if (content instanceof Promise) {
                                             content.then(function (data) {
-                                              headers['Content-Type', 'application/json; charset=utf-8']
+                                              headers['Content-Type'] = 'application/json; charset=utf-8'
                                               res.writeHead(200, headers)
                                               res.end(JSON.stringify(data))
                                             }, function(e) {
-                                              headers['Content-Type', 'application/json; charset=utf-8']
+                                              headers['Content-Type'] = 'application/json; charset=utf-8'
                                               res.writeHead(500, headers)
                                               res.end(JSON.stringify({ "error": e.toString() }))
                                             })
                                           }
                                           else if (content !== true) {
-                                                headers['Content-Type', 'application/json; charset=utf-8']
+                                                headers['Content-Type'] = 'application/json; charset=utf-8'
                                                 res.writeHead(200, headers)
                                                 res.end(JSON.stringify(content))
                                           }
                                     }
                                     else {
-                                          headers['Content-Type', 'application/json; charset=utf-8']
+                                          headers['Content-Type'] = 'application/json; charset=utf-8'
                                           res.writeHead(200, headers)
                                           res.end(JSON.stringify({ headers: req.headers, url: askedUrl, param: match.param }))
                                     }
                               }
                               else {
-                                    headers['Content-Type', 'application/json; charset=utf-8']
+                                    headers['Content-Type'] = 'application/json; charset=utf-8'
                                     res.writeHead(404, headers)
                                     res.end(JSON.stringify({ "message": "not found" }))
                               }
                         }
                         catch (e) {
-                              headers['Content-Type', 'application/json; charset=utf-8']
+                              headers['Content-Type'] = 'application/json; charset=utf-8'
                               res.writeHead(500, headers)
                               res.end(JSON.stringify({ "error": e.toString() }))
                         }
