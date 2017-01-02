@@ -9,11 +9,13 @@ module.exports = {
             router.add(_method, _pattern, _handler)
       },
       run: function (_port, _ip) {
-            if (!_ip) {
-                  _ip = '127.0.0.1'
-            }
             this.ws = http.createServer(this.handleRequest.bind(this))
-            this.ws.listen(_port, _ip)
+            if (!_ip) {
+              this.ws.listen(_port)
+            }
+            else {
+              this.ws.listen(_port, _ip)
+            }
             this.ws.on('close', function () { })
 
             console.log('Server running at http://' + _ip + ':' + _port + '/')
