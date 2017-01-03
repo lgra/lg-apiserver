@@ -49,8 +49,9 @@ module.exports = {
         var segments = url.split('/')
         segments.forEach(function (segment) {
           if (branch) {
-            if (branch.constant.hasOwnProperty(segment)) {
-              branch = branch.constant[segment]
+            var uSegment = (segment || '').toLowerCase()
+            if (branch.constant.hasOwnProperty(uSegment)) {
+              branch = branch.constant[uSegment]
             }
             else if (Object.keys(branch.parameter).length > 0) {
               var key = Object.keys(branch.parameter)[0]
