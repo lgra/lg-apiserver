@@ -78,19 +78,23 @@ module.exports = {
               var content = match.handler(match.param, context)
               if (content instanceof Promise) {
                 content.then(function (data) {
-                  headers['Content-Type'] = 'application/json; charset=utf-8'
-                  res.writeHead(200, headers)
-                  res.end(JSON.stringify(data))
+                  if (!context.headers.hasOwnProperty('Content-Type')) {
+                    context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                  }
+                  context.res.writeHead(200, context.headers)
+                  context.res.end(JSON.stringify(data))
                 }, function (e) {
-                  headers['Content-Type'] = 'application/json; charset=utf-8'
-                  res.writeHead(500, headers)
-                  res.end(JSON.stringify({ "error": e.toString() }))
+                  context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                  context.res.writeHead(500, context.headers)
+                  context.res.end(JSON.stringify({ "error": e.toString() }))
                 })
               }
               else if (content !== true) {
-                headers['Content-Type'] = 'application/json; charset=utf-8'
-                res.writeHead(200, headers)
-                res.end(JSON.stringify(content))
+                if (!context.headers.hasOwnProperty('Content-Type')) {
+                  context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                }
+                context.res.writeHead(200, context.headers)
+                context.res.end(JSON.stringify(content))
               }
             }
             else {
