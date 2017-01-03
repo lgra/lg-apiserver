@@ -78,11 +78,13 @@ module.exports = {
               var content = match.handler(match.param, context)
               if (content instanceof Promise) {
                 content.then(function (data) {
+                  var toJSON = false
                   if (!context.headers.hasOwnProperty('Content-Type')) {
                     context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                    toJSON = true
                   }
                   context.res.writeHead(200, context.headers)
-                  context.res.end(JSON.stringify(data))
+                  context.res.end(toJSON ? JSON.stringify(data) : data)
                 }, function (e) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
                   context.res.writeHead(500, context.headers)
@@ -90,11 +92,13 @@ module.exports = {
                 })
               }
               else if (content !== true) {
+                var toJSON = false
                 if (!context.headers.hasOwnProperty('Content-Type')) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                  toJSON = true
                 }
                 context.res.writeHead(200, context.headers)
-                context.res.end(JSON.stringify(content))
+                context.res.end(toJSON ? JSON.stringify(content) : content)
               }
             }
             else {
