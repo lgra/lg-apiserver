@@ -5,10 +5,28 @@ var router = require('./router.js')
 
 module.exports = {
   ws: null,
+  log: null,
+  logToConsole: function (_stat) {
+    console.log(JSON.stringify({
+      method: _stat.req.method,
+      url: _stat.req.url,
+      date: (new Date(_stat.start)).toUTCString(),
+      duration: _stat.end - _stat.start,
+      headers: _stat.req.headers
+    }))
+  },
   add: function (_method, _pattern, _handler) {
     router.add(_method, _pattern, _handler)
   },
-  run: function (_port, _ip) {
+  run: function (_port, _ip, _options) {
+    if (_options && _options.log) {
+      if (typeof _options.log === "function") {
+        this.log = _options.log
+      }
+      else {
+        this.log = this.logToConsole
+      }
+    }
     this.ws = http.createServer(this.handleRequest.bind(this))
     if (!_ip) {
       this.ws.listen(_port)
@@ -21,7 +39,11 @@ module.exports = {
     console.log('Server running at http://' + _ip + ':' + _port + '/')
   },
   handleRequest: function (req, res) {
-    //            console.log(req.method + " - " + req.url + " - " + JSON.stringify(req.headers))
+    var stat = {
+      req: req,
+      start: Date.now()
+    }
+    var self = this
     var headers = {}
     if (req.headers.origin) {
       headers = {
@@ -33,6 +55,8 @@ module.exports = {
     if (req.method == "OPTIONS") {
       res.writeHead(200, headers)
       res.end()
+      stat[res] = res
+      self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
     }
     else {
       var data = ""
@@ -89,10 +113,12 @@ module.exports = {
                   }
                   context.res.writeHead(context.status || 200, context.headers)
                   context.res.end(toJSON ? JSON.stringify(data) : data)
+                  self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
                 }, function (e) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
                   context.res.writeHead(500, context.headers)
                   context.res.end(JSON.stringify({ "error": e.toString() }))
+                  self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now(), error: e }))
                 })
               }
               else if (content !== true) {
@@ -103,24 +129,28 @@ module.exports = {
                 }
                 context.res.writeHead(context.status || 200, context.headers)
                 context.res.end(toJSON ? JSON.stringify(content) : content)
+                self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
               }
             }
             else {
               headers['Content-Type'] = 'application/json; charset=utf-8'
               res.writeHead(200, headers)
               res.end(JSON.stringify({ headers: req.headers, url: askedUrl, param: match.param }))
+              self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
             }
           }
           else {
             headers['Content-Type'] = 'application/json; charset=utf-8'
             res.writeHead(404, headers)
             res.end(JSON.stringify({ "message": "not found" }))
+            self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
           }
         }
         catch (e) {
           headers['Content-Type'] = 'application/json; charset=utf-8'
           res.writeHead(500, headers)
           res.end(JSON.stringify({ "error": e.toString() }))
+          self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
         }
       })
     }

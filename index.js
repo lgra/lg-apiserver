@@ -15,7 +15,7 @@ api.add('get', '/promises', demoPromiseHandler)
 api.add('get', '/promises/:id', demoPromiseHandler)
 api.add('get', '/404', demo404)
 
-api.run(1339, '127.0.0.1')
+api.run(1339, '127.0.0.1', {log: true})
 
 function demoHandler (_param, _context) {
 	return _param
