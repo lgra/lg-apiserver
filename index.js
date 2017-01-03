@@ -13,7 +13,7 @@ api.add('get', '/clients/:id/users', true)
 api.add('get', '/clients/:id/users/:iduser', true)
 api.add('get', '/promises', demoPromiseHandler)
 api.add('get', '/promises/:id', demoPromiseHandler)
-api.add('get', '/404', true)
+api.add('get', '/404', demo404)
 
 api.run(1339, '127.0.0.1')
 
@@ -40,4 +40,9 @@ function demoPromiseHandler (_param, _context) {
     }
   })
   return promise
+}
+
+function demo404 (_param, _context) {
+  _context.status = 404
+	return 'Don\'t know wath you want me to do'
 }

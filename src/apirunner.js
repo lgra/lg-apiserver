@@ -75,6 +75,7 @@ module.exports = {
               var context = {
                 req: req,
                 headers: headers,
+                status: 0,
                 res: res,
                 url: askedUrl
               }
@@ -86,7 +87,7 @@ module.exports = {
                     context.headers['Content-Type'] = 'application/json; charset=utf-8'
                     toJSON = true
                   }
-                  context.res.writeHead(200, context.headers)
+                  context.res.writeHead(context.status || 200, context.headers)
                   context.res.end(toJSON ? JSON.stringify(data) : data)
                 }, function (e) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
@@ -100,7 +101,7 @@ module.exports = {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
                   toJSON = true
                 }
-                context.res.writeHead(200, context.headers)
+                context.res.writeHead(context.status || 200, context.headers)
                 context.res.end(toJSON ? JSON.stringify(content) : content)
               }
             }
