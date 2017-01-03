@@ -13,6 +13,7 @@ api.add('get', '/clients/:id/users', true)
 api.add('get', '/clients/:id/users/:iduser', true)
 api.add('get', '/promises', demoPromiseHandler)
 api.add('get', '/promises/:id', demoPromiseHandler)
+api.add('get', '/404', true)
 
 api.run(1339, '127.0.0.1')
 

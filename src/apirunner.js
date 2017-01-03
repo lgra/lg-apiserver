@@ -48,6 +48,9 @@ module.exports = {
         try {
           var askedUrl = url.parse(req.url)
           var match = router.parse(req.method, askedUrl.pathname)
+          if (!(match && match.route)) {
+            match = router.parse('get', '404')
+          }
           if (match && match.route) {
             var query = querystring.parse(askedUrl.query)
             if (typeof query === "object") {
