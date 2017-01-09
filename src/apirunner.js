@@ -1,5 +1,5 @@
 var http = require('http')
-var url = require('url');
+var url = require('url')
 var querystring = require('querystring')
 var router = require('./router.js')
 
@@ -116,7 +116,7 @@ module.exports = {
                   self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
                 }, function (e) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
-                  context.res.writeHead(500, context.headers)
+                  context.res.writeHead(context.status || 500, context.headers)
                   context.res.end(JSON.stringify({ "error": e.toString() }))
                   self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now(), error: e }))
                 })
