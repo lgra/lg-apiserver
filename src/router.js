@@ -12,7 +12,7 @@ module.exports = {
     var branch = this.tree[method]
     var pattern = (_pattern || '').replace(/^\/?/, '').replace(/\/?$/, '')
     if (pattern.length > 0) {
-      var segments = pattern.split('/')
+      var segments = pattern.split(/[\)\/|\/|\(]/).filter((segment) => segment !== '')
       segments.forEach(function (segment) {
         var kind, key
         if (segment[0] === ':') {
@@ -46,7 +46,8 @@ module.exports = {
       branch = this.tree[method]
       var url = (_url || '').replace(/^\/?/, '').replace(/\/?$/, '')
       if (url.length > 0) {
-        var segments = url.split('/')
+//        var segments = url.split('/')
+        var segments = url.split(/[\)\/|\/|\(]/).filter((segment) => segment !== '')
         segments.forEach(function (segment) {
           if (branch) {
             var uSegment = (segment || '').toLowerCase()
