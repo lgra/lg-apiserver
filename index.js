@@ -16,6 +16,7 @@ api.add('get', '/clients(:id)/users(:iduser)/address', demoHandler)
 api.add('get', '/promises', demoPromiseHandler)
 api.add('get', '/promises/:id', demoPromiseHandler)
 api.add('get', '/404', demo404)
+api.add('get', '/users(:id)/*', demoHandler)
 
 api.run(1339, '127.0.0.1', {log: true})
 

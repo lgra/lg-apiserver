@@ -15,7 +15,10 @@ module.exports = {
       var segments = pattern.split(/[\)\/|\/|\(]/).filter((segment) => segment !== '')
       segments.forEach(function (segment) {
         var kind, key
-        if (segment[0] === ':') {
+        if (segment === '*') {
+          branch.generic = true
+        }
+        else if (segment[0] === ':') {
           kind = branch.parameter
           key = Object.keys(kind).length > 0 ? Object.keys(kind)[0] : segment.slice(1).toLowerCase()
         }
@@ -23,10 +26,12 @@ module.exports = {
           kind = branch.constant
           key = segment.toLowerCase()
         }
-        if (!kind.hasOwnProperty(key)) {
-          kind[key] = { constant: {}, parameter: {}, route: null }
+        if (!branch.generic) {
+          if (!kind.hasOwnProperty(key)) {
+            kind[key] = { constant: {}, parameter: {}, route: null }
+          }
+          branch = kind[key]
         }
-        branch = kind[key]
       }, this)
     }
     this.routes.push(branch.route = {
@@ -49,22 +54,54 @@ module.exports = {
       var url = (_url || '').replace(/^\/?/, '').replace(/\/?$/, '')
       if (url.length > 0) {
         //        var segments = url.split('/')
-        var segments = url.split(/[\)\/|\/|\(]/).filter((segment) => segment !== '')
+        var segments = url.split(/([\)\/|\/|\(])/).filter((segment) => segment !== '')
+        var nextIsParam = false
+        var previousConst = ''
         segments.forEach(function (segment) {
           if (branch) {
-            var uSegment = (segment || '').toLowerCase()
-            if (branch.constant.hasOwnProperty(uSegment)) {
-              branch = branch.constant[uSegment]
-              path.push({ name: uSegment })
-            }
-            else if (Object.keys(branch.parameter).length > 0) {
-              var key = Object.keys(branch.parameter)[0]
-              param[key] = segment
-              branch = branch.parameter[key]
-              path.push({ name: key, value: param[key] })
+            if (segment === "(") {
+              nextIsParam = true
             }
             else {
-              branch = null
+              if (segment !== ")" && segment !== "/") {
+                var uSegment = (segment || '').toLowerCase()
+                if (branch.generic) {
+                  if (nextIsParam) {
+                    var key = previousConst + '#'
+                    if (param.hasOwnProperty(key)) {
+                      var i = 1
+                      while (param.hasOwnProperty(key = previousConst + i + '#')) { i++ }
+                    }
+                    param[key] = segment
+                    path.push({ name: previousConst + '#', type: 'param', value: segment })
+                  }
+                  else {
+                    previousConst = segment
+                    path.push({ name: segment, type: 'const' })
+                  }
+                }
+                else if (branch.constant.hasOwnProperty(uSegment)) {
+                  branch = branch.constant[uSegment]
+                  path.push({ name: uSegment, type: 'const' })
+                  previousConst = segment
+                }
+                else if (Object.keys(branch.parameter).length > 0) {
+                  var key = Object.keys(branch.parameter)[0]
+                  if (param.hasOwnProperty(key)) {
+                    var i = 1
+                    while (param.hasOwnProperty(key + i)) { i++ }
+                    key = key + i
+                  }
+                  param[key] = segment
+                  param[key] = segment
+                  branch = branch.parameter[key]
+                  path.push({ name: key, type: 'param', value: param[key] })
+                }
+                else {
+                  branch = null
+                }
+              }
+              nextIsParam = false
             }
           }
         }, this)
