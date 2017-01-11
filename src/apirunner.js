@@ -15,8 +15,8 @@ module.exports = {
       headers: _stat.req.headers
     }))
   },
-  add: function (_method, _pattern, _handler) {
-    router.add(_method, _pattern, _handler)
+  add: function (_method, _pattern, _handler, _param) {
+    router.add(_method, _pattern, _handler, _param)
   },
   run: function (_port, _ip, _options) {
     if (_options && _options.log) {

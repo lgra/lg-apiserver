@@ -1,7 +1,7 @@
 module.exports = {
   routes: [],
   tree: {},
-  add: function (_method, _pattern, _handler) {
+  add: function (_method, _pattern, _handler, _param) {
     var method = (_method || '').toLowerCase()
     if (method === 'del') {
       method = 'delete'
@@ -32,7 +32,8 @@ module.exports = {
     this.routes.push(branch.route = {
       method: _method,
       pattern: _pattern,
-      handler: _handler
+      handler: _handler,
+      param: _param || {}
     })
   },
   parse: function (_method, _url) {
@@ -46,7 +47,7 @@ module.exports = {
       branch = this.tree[method]
       var url = (_url || '').replace(/^\/?/, '').replace(/\/?$/, '')
       if (url.length > 0) {
-//        var segments = url.split('/')
+        //        var segments = url.split('/')
         var segments = url.split(/[\)\/|\/|\(]/).filter((segment) => segment !== '')
         segments.forEach(function (segment) {
           if (branch) {
@@ -67,15 +68,14 @@ module.exports = {
       }
     }
     if (branch && branch.route) {
-      return { param: param, handler: branch.route.handler, route: branch.route }
+      return {
+        param: Object.assign({}, branch.route.param, param),
+        handler: branch.route.handler,
+        route: branch.route
+      }
     }
     else {
       return {}
     }
   }
 }
-
-
-
-
-
