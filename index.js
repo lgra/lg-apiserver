@@ -1,5 +1,3 @@
-var Promise = require('promise')
-
 var api = require('./src/apirunner.js')
 
 api.add('get', '/', true)
@@ -14,7 +12,7 @@ api.add('get', '/clients/:id/users/:iduser', true)
 api.add('get', '/clients27pdg', demoHandler, {id: 27, iduser: 1})
 api.add('get', '/shortcut', true, {id: 27, iduser: 1})
 api.add('get', '/clients(:id)/users(:iduser)', demoHandler)
-api.add('get', '/clients(:id)/users(:iduser)/address', true)
+api.add('get', '/clients(:id)/users(:iduser)/address', demoHandler)
 api.add('get', '/promises', demoPromiseHandler)
 api.add('get', '/promises/:id', demoPromiseHandler)
 api.add('get', '/404', demo404)
@@ -22,7 +20,7 @@ api.add('get', '/404', demo404)
 api.run(1339, '127.0.0.1', {log: true})
 
 function demoHandler (_param, _context) {
-	return _param
+	return { param: _param, route: _context.route, path: _context.path}
 }
 
 function demoCustomHandler (_param, _context) {
@@ -35,15 +33,15 @@ function demoCustomHandler (_param, _context) {
 }
 
 function demoPromiseHandler (_param, _context) {
-  var promise = new Promise(function (resolve, reject) {
-    if (_param && _param.id) {
-      reject(new Error("not yet implemented"))
+  return new Promise(function (resolve, reject) {
+    if (_param && !_param.id) {
+      _context.status = 501
+      reject("not yet implemented")
     }
     else {
-      resolve("that's it")
+      resolve({ from: 'promise', param: _param, route: _context.route, path: _context.path})
     }
   })
-  return promise
 }
 
 function demo404 (_param, _context) {

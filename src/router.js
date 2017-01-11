@@ -43,6 +43,7 @@ module.exports = {
     }
     var param = {}
     var branch = null
+    var path = []
     if (this.tree.hasOwnProperty(method)) {
       branch = this.tree[method]
       var url = (_url || '').replace(/^\/?/, '').replace(/\/?$/, '')
@@ -54,11 +55,13 @@ module.exports = {
             var uSegment = (segment || '').toLowerCase()
             if (branch.constant.hasOwnProperty(uSegment)) {
               branch = branch.constant[uSegment]
+              path.push({ name: uSegment })
             }
             else if (Object.keys(branch.parameter).length > 0) {
               var key = Object.keys(branch.parameter)[0]
               param[key] = segment
               branch = branch.parameter[key]
+              path.push({ name: key, value: param[key] })
             }
             else {
               branch = null
@@ -71,7 +74,8 @@ module.exports = {
       return {
         param: Object.assign({}, branch.route.param, param),
         handler: branch.route.handler,
-        route: branch.route
+        route: branch.route,
+        path: path
       }
     }
     else {

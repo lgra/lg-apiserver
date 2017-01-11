@@ -101,7 +101,9 @@ module.exports = {
                 headers: headers,
                 status: 0,
                 res: res,
-                url: askedUrl
+                url: askedUrl,
+                route: match.route,
+                path: match.path
               }
               var content = match.handler(match.param, context)
               if (content instanceof Promise) {
