@@ -103,6 +103,7 @@ module.exports = {
                 res: res,
                 url: askedUrl,
                 route: match.route,
+                param: match.param,
                 path: match.path
               }
               var content = match.handler(match.param, context)
