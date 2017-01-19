@@ -1,4 +1,5 @@
 module.exports = {
+  root: null,
   routes: [],
   tree: {},
   add: function (_method, _pattern, _handler, _param) {
@@ -52,9 +53,17 @@ module.exports = {
     if (this.tree.hasOwnProperty(method)) {
       branch = this.tree[method]
       var url = (_url || '').replace(/^\/?/, '').replace(/\/?$/, '')
-      if (url.length > 0) {
+      if (url.length > 0 || Boolean(this.root)) {
         //        var segments = url.split('/')
         var segments = url.split(/([\)\/|\/|\(])/).filter((segment) => segment !== '')
+        if (Boolean(this.root)) {
+          if (segments.length > 0 && segments[0] === this.root) {
+            segments.shift()
+          }
+          else {
+            return {}
+          }
+        }
         var nextIsParam = false
         var previousConst = ''
         segments.forEach(function (segment) {

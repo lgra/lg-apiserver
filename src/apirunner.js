@@ -15,6 +15,9 @@ module.exports = {
       headers: _stat.req.headers
     }))
   },
+  setRoot: function (_root) {
+    router.root = _root
+  },
   add: function (_method, _pattern, _handler, _param) {
     router.add(_method, _pattern, _handler, _param)
   },
@@ -138,7 +141,7 @@ module.exports = {
             else {
               headers['Content-Type'] = 'application/json; charset=utf-8'
               res.writeHead(200, headers)
-              res.end(JSON.stringify({ headers: req.headers, url: askedUrl, param: match.param }))
+              res.end(JSON.stringify({ headers: req.headers, url: askedUrl, match: match }))
               self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
             }
           }
