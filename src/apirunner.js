@@ -98,7 +98,11 @@ module.exports = {
                 }
               }
             }
-            if (typeof match.handler === "function") {
+            var handler = match.handler
+            if (typeof match.handler === "string") {
+              handler = require(match.handler)
+            }
+            if (typeof handler === "function") {
               var context = {
                 req: req,
                 headers: headers,
@@ -109,7 +113,7 @@ module.exports = {
                 param: match.param,
                 path: match.path
               }
-              var content = match.handler(match.param, context)
+              var content = handler(match.param, context)
               if (content instanceof Promise) {
                 content.then(function (data) {
                   var toJSON = false
