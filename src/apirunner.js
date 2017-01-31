@@ -126,8 +126,15 @@ module.exports = {
                   self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
                 }, function (e) {
                   context.headers['Content-Type'] = 'application/json; charset=utf-8'
+                  var message = ''
+                  try {
+                    message = JSON.stringify(e)
+                  }
+                  catch (err) {
+                    message = e.message || e.toString()
+                  }
                   context.res.writeHead(context.status || 500, context.headers)
-                  context.res.end(JSON.stringify({ "error": e.toString() }))
+                  context.res.end(JSON.stringify({ "error": message }))
                   self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now(), error: e }))
                 })
               }
