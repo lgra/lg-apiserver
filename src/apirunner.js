@@ -132,7 +132,10 @@ module.exports = {
                   }
                   catch (err) { }
                   if (message === '{}' || message === '') {
-                    message = e.message || e
+                    message = e.message || e.toString()
+                  }
+                  else {
+                    message = e
                   }
                   context.res.writeHead(context.status || 500, context.headers)
                   context.res.end(JSON.stringify({ "error": message }))
