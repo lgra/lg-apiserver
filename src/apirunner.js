@@ -130,8 +130,9 @@ module.exports = {
                   try {
                     message = JSON.stringify(e)
                   }
-                  catch (err) {
-                    message = e.message || e.toString()
+                  catch (err) { }
+                  if (message === '{}' || message === '') {
+                    message = e.message || e
                   }
                   context.res.writeHead(context.status || 500, context.headers)
                   context.res.end(JSON.stringify({ "error": message }))
