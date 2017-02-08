@@ -48,6 +48,7 @@ module.exports = {
     }
     var self = this
     var headers = {}
+    var response = null
     if (req.headers.origin) {
       headers = {
         "Access-Control-Allow-Origin": req.headers.origin,
@@ -115,65 +116,53 @@ module.exports = {
               }
               var content = handler(match.param, context)
               if (content instanceof Promise) {
-                content.then(function (data) {
-                  var toJSON = false
-                  if (!context.headers.hasOwnProperty('Content-Type')) {
-                    context.headers['Content-Type'] = 'application/json; charset=utf-8'
-                    toJSON = true
-                  }
-                  context.res.writeHead(context.status || 200, context.headers)
-                  context.res.end(toJSON ? JSON.stringify(data) : data)
-                  self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
-                }, function (e) {
-                  context.headers['Content-Type'] = 'application/json; charset=utf-8'
-                  var message = ''
-                  try {
-                    message = JSON.stringify(e)
-                  }
-                  catch (err) { }
-                  if (message === '{}' || message === '') {
-                    message = e.message || e.toString()
-                  }
-                  else {
-                    message = e
-                  }
-                  context.res.writeHead(context.status || 500, context.headers)
-                  context.res.end(JSON.stringify({ "error": message }))
-                  self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now(), error: e }))
-                })
+                content.then(
+                  function (data) {
+                    send(context.res, context.headers, context.status || 200, data, !context.headers.hasOwnProperty('Content-Type'), self.log, stat)
+                  },
+                  function (e) {
+                    var message = ''
+                    try {
+                      message = JSON.stringify(e)
+                    }
+                    catch (err) { }
+                    if (message === '{}' || message === '') {
+                      message = e.message || e.toString()
+                    }
+                    else {
+                      message = e
+                    }
+                    send(context.res, context.headers, context.status || 500, { "error": message }, true, self.log, stat)
+                    self.log && self.log({ error: e })
+                  })
               }
               else if (content !== true) {
-                var toJSON = false
-                if (!context.headers.hasOwnProperty('Content-Type')) {
-                  context.headers['Content-Type'] = 'application/json; charset=utf-8'
-                  toJSON = true
-                }
-                context.res.writeHead(context.status || 200, context.headers)
-                context.res.end(toJSON ? JSON.stringify(content) : content)
-                self.log && self.log(Object.assign(stat, { res: context.res, end: Date.now() }))
+                send(context.res, context.headers, context.status || 200, content, !context.headers.hasOwnProperty('Content-Type'), self.log, stat)
               }
             }
             else {
-              headers['Content-Type'] = 'application/json; charset=utf-8'
-              res.writeHead(200, headers)
-              res.end(JSON.stringify({ headers: req.headers, url: askedUrl, match: match }))
-              self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
+              send(res, headers, 200, { headers: req.headers, url: askedUrl, match: match }, true, self.log, stat)
             }
           }
           else {
-            headers['Content-Type'] = 'application/json; charset=utf-8'
-            res.writeHead(404, headers)
-            res.end(JSON.stringify({ "message": "not found" }))
-            self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
+            send(res, headers, 404, { "message": "not found" }, true, self.log, stat)
           }
         }
         catch (e) {
-          headers['Content-Type'] = 'application/json; charset=utf-8'
-          res.writeHead(500, headers)
-          res.end(JSON.stringify({ "error": e.toString() }))
-          self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
+          send(res, headers, 500, { "error": e.toString() }, true, self.log, stat)
         }
       })
     }
   }
+}
+
+function send(_response, _headers, _status, _content, _json_content, _logger, _stat) {
+  if (_json_content) {
+    _headers['Content-Type'] = 'application/json; charset=utf-8'
+    _content = JSON.stringify(_content)
+  }
+  _headers['Content-Length'] = _content ? Buffer.byteLength(_content) : 0
+  _response.writeHead(_status, _headers)
+  _response.end(_content)
+  _logger && _logger(Object.assign(_stat, { res: _response, end: Date.now() }))
 }
