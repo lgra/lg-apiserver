@@ -57,10 +57,10 @@ module.exports = {
       }
     }
     if (req.method == "OPTIONS") {
-      res.writeHead(200, headers)
-      res.end()
-      stat[res] = res
-      self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
+      send(res, headers, 200, null, false, self.log, stat)
+      // res.writeHead(200, headers)
+      // res.end()
+      // self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
     }
     else {
       var data = ""
@@ -133,7 +133,6 @@ module.exports = {
                       message = e
                     }
                     send(context.res, context.headers, context.status || 500, { "error": message }, true, self.log, stat)
-                    self.log && self.log({ error: e })
                   })
               }
               else if (content !== true) {
