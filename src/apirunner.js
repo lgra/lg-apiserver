@@ -10,9 +10,10 @@ module.exports = {
     console.log(JSON.stringify({
       method: _stat.req.method,
       url: _stat.req.url,
+      status: _stat.res.statusCode,
       date: (new Date(_stat.start)).toUTCString(),
       duration: _stat.end - _stat.start,
-      headers: _stat.req.headers
+      size: _stat.size
     }))
   },
   setRoot: function (_root) {
@@ -161,8 +162,9 @@ function send(_response, _headers, _status, _content, _json_content, _logger, _s
     _headers['Content-Type'] = 'application/json; charset=utf-8'
     _content = JSON.stringify(_content)
   }
-  _headers['Content-Length'] = _content ? Buffer.byteLength(_content) : 0
+  var size = _content ? Buffer.byteLength(_content) : 0
+  _headers['Content-Length'] = size
   _response.writeHead(_status, _headers)
   _response.end(_content)
-  _logger && _logger(Object.assign(_stat, { res: _response, end: Date.now() }))
+  _logger && _logger(Object.assign(_stat, { res: _response, end: Date.now(), size: size }))
 }
