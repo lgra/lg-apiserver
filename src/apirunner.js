@@ -42,6 +42,9 @@ module.exports = {
 
     console.log('Server running at http://' + _ip + ':' + _port + '/')
   },
+  // http://blog.inovia-conseil.fr/?p=202
+  // https://developer.mozilla.org/fr/docs/HTTP/Access_control_CORS
+  // https://stackoverflow.com/questions/14015118/what-is-the-expected-response-to-an-invalid-cors-request
   handleRequest: function (req, res) {
     var stat = {
       req: req,
@@ -60,9 +63,6 @@ module.exports = {
     }
     if (req.method == "OPTIONS") {
       send(res, headers, 200, null, false, self.log, stat)
-      // res.writeHead(200, headers)
-      // res.end()
-      // self.log && self.log(Object.assign(stat, { res: res, end: Date.now() }))
     }
     else {
       var data = ""
@@ -79,7 +79,13 @@ module.exports = {
           var askedUrl = url.parse(req.url)
           var match = router.parse(req.method, askedUrl.pathname)
           if (!(match && match.route)) {
-            match = router.parse('get', '404')
+            if (askedUrl.pathname.search(/ping$/) !== -1) {
+              send(res, headers, 200, 'pong', false, null, stat)
+              return
+            }
+            else {
+              match = router.parse('get', '404')
+            }
           }
           if (match && match.route) {
             var query = querystring.parse(askedUrl.query)
@@ -152,6 +158,9 @@ module.exports = {
         catch (e) {
           send(res, headers, 500, { "error": e.toString() }, true, self.log, stat)
         }
+      })
+      req.on('error', function (e) {
+        send(res, headers, 500, { "error": e.toString() }, true, self.log, stat)
       })
     }
   }
