@@ -13,7 +13,11 @@ module.exports = {
       status: _stat.res.statusCode,
       date: (new Date(_stat.start)).toUTCString(),
       duration: _stat.end - _stat.start,
-      size: _stat.size
+      size: _stat.size,
+      // "user-agent": _stat.req.headers["user-agent"],
+      // "accept-language": _stat.req.headers["accept-language"],
+      // "x-forwarded-for": _stat.req.headers["x-forwarded-for"],
+      msg: _stat.message
     }))
   },
   setRoot: function (_root) {
@@ -48,7 +52,8 @@ module.exports = {
   handleRequest: function (req, res) {
     var stat = {
       req: req,
-      start: Date.now()
+      start: Date.now(),
+      message: 'success'
     }
     var self = this
     var headers = {}
@@ -62,6 +67,7 @@ module.exports = {
       }
     }
     if (req.method == "OPTIONS") {
+      stat.message = 'CORS preflight handling'
       send(res, headers, 200, null, false, self.log, stat)
     }
     else {
@@ -80,6 +86,7 @@ module.exports = {
           var match = router.parse(req.method, askedUrl.pathname)
           if (!(match && match.route)) {
             if (askedUrl.pathname.search(/ping$/) !== -1) {
+              stat.message = 'native ping'
               send(res, headers, 200, 'pong', false, null, stat)
               return
             }
@@ -126,6 +133,7 @@ module.exports = {
               if (content instanceof Promise) {
                 content.then(
                   function (data) {
+                    stat.message = 'promise request handler'
                     send(context.res, context.headers, context.status || 200, data, !context.headers.hasOwnProperty('Content-Type'), self.log, stat)
                   },
                   function (e) {
@@ -140,26 +148,32 @@ module.exports = {
                     else {
                       message = e
                     }
+                    stat.message = message
                     send(context.res, context.headers, context.status || 500, { "error": message }, true, self.log, stat)
                   })
               }
               else if (content !== true) {
+                stat.message = 'static content request handler'
                 send(context.res, context.headers, context.status || 200, content, !context.headers.hasOwnProperty('Content-Type'), self.log, stat)
               }
             }
             else {
+              stat.message = 'test route'
               send(res, headers, 200, { headers: req.headers, url: askedUrl, match: match }, true, self.log, stat)
             }
           }
           else {
+            stat.message = 'not found'
             send(res, headers, 404, { "message": "not found" }, true, self.log, stat)
           }
         }
         catch (e) {
+          stat.message = 'error while rounting request'
           send(res, headers, 500, { "error": e.toString() }, true, self.log, stat)
         }
       })
       req.on('error', function (e) {
+        stat.message = 'error while reading request content'
         send(res, headers, 500, { "error": e.toString() }, true, self.log, stat)
       })
     }
