@@ -36,6 +36,7 @@ module.exports = {
       }
     }
     this.ws = http.createServer(this.handleRequest.bind(this))
+    this.ws.timeout = 300000
     if (!_ip) {
       this.ws.listen(_port)
     }
