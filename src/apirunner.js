@@ -1,4 +1,5 @@
 var http = require('http')
+var https = require('https')
 var url = require('url')
 var querystring = require('querystring')
 var router = require('./router.js')
@@ -35,7 +36,17 @@ module.exports = {
         this.log = this.logToConsole
       }
     }
-    this.ws = http.createServer(this.handleRequest.bind(this))
+    if (_options && _options.https) {
+      if (_options && _options.cert) {
+        this.ws = https.createServer(_options.cert, this.handleRequest.bind(this))
+      }
+      else {
+        this.ws = https.createServer(this.handleRequest.bind(this))
+      }
+    }
+    else {
+      this.ws = http.createServer(this.handleRequest.bind(this))
+    }
     this.ws.timeout = (_options && _options.timeout) ? _options.timeout : 300000
     if (!_ip) {
       this.ws.listen(_port)
@@ -45,7 +56,7 @@ module.exports = {
     }
     this.ws.on('close', function () { })
 
-    console.log('Server running at http://' + _ip + ':' + _port + '/')
+    console.log('Server running at http' + (_options && _options.https ? 's' : '') + '://' + _ip + ':' + _port + '/')
   },
   // http://blog.inovia-conseil.fr/?p=202
   // https://developer.mozilla.org/fr/docs/HTTP/Access_control_CORS

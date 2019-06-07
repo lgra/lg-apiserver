@@ -56,3 +56,15 @@ function demo404(_param, _context) {
   _context.status = 404
   return 'Don\'t know wath you want me to do'
 }
+
+
+/**** HTTPS example
+
+api.run(port, '127.0.0.1', {
+  log: true, https: true, cert: {
+    key: fs.readFileSync('api/cert/127/server.key'),
+    cert: fs.readFileSync('api/cert/127/server.cert')
+  }
+})
+
+************************/
