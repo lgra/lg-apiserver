@@ -47,16 +47,23 @@ module.exports = {
     else {
       this.ws = http.createServer(this.handleRequest.bind(this))
     }
-    this.ws.timeout = (_options && _options.timeout) ? _options.timeout : 300000
     if (!_ip) {
       this.ws.listen(_port)
     }
     else {
       this.ws.listen(_port, _ip)
     }
+    if (_options && _options.hasOwnProperty('timeout')) {
+      this.ws.setTimeout(_options && _options.timeout, (socket) => {
+        console.log(`Socket timouted after ${socket.timeout}ms`)
+        socket.destroy()
+      })
+    }
+    console.log(this.ws.timeout)
+
     this.ws.on('close', function () { })
 
-    console.log('Server running at http' + (_options && _options.https ? 's' : '') + '://' + _ip + ':' + _port + '/')
+    console.log('Server running at http' + (_options && _options.https ? 's' : '') + '://' + _ip + ':' + _port + `/ with timeout of ${this.ws.timeout}ms`)
   },
   // http://blog.inovia-conseil.fr/?p=202
   // https://developer.mozilla.org/fr/docs/HTTP/Access_control_CORS
